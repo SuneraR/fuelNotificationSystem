@@ -39,35 +39,52 @@ const GoogleMapCom = () => {
 
   useEffect(() => {
     if (!isLoaded) return;
-    const service = new window.google.maps.places.PlacesService(
-      document.createElement("div"),
-    );
 
-    const allStations = [];
+    const fetchStations = async () => {
+      const service = new window.google.maps.places.PlacesService(
+        document.createElement("div"),
+      );
 
-    locations.forEach((loc) => {
-      const request = {
-        location: loc,
-        radius: 50000, // 50 km radius
-        type: "gas_station",
-      };
-      service.nearbySearch(request, (results, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          const fuelStations = results.map((place) => ({
-            id: place.place_id,
-            name: place.name,
-            location: {
-              lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lng(),
-            },
-          }));
-          allStations.push(...fuelStations);
-          setStations([...allStations]);
-        } else {
-          console.error("Places API error:", status);
-        }
+      const stationMap = new Map(); // Use Map to deduplicate by place_id
+      let completedRequests = 0;
+
+      locations.forEach((loc) => {
+        const request = {
+          location: loc,
+          radius: 50000, // 50 km radius
+          type: "gas_station",
+        };
+
+        service.nearbySearch(request, (results, status) => {
+          completedRequests++;
+
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+            results.forEach((place) => {
+              // Only add if not already in the map (deduplication)
+              if (!stationMap.has(place.place_id)) {
+                stationMap.set(place.place_id, {
+                  id: place.place_id,
+                  name: place.name,
+                  location: {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                  },
+                });
+              }
+            });
+          } else if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
+            console.error("Places API error:", status);
+          }
+
+          // Update state only after all requests are completed
+          if (completedRequests === locations.length) {
+            setStations(Array.from(stationMap.values()));
+          }
+        });
       });
-    });
+    };
+
+    fetchStations();
   }, [isLoaded]);
 
   if (!isLoaded) return <div>Loading Map...</div>;
