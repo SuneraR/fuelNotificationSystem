@@ -13,7 +13,7 @@ const center = {
 
 const GoogleMapCom = () => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: import.meta.env.GOOGLE_MAP_API,
+    googleMapsApiKey: "AIzaSyCgmQYWlf_Q22p01_guQBRvMosLCCmPEzY",
     libraries: ["places"], // if you need additional libraries, add them here
   });
 
@@ -42,7 +42,9 @@ const GoogleMapCom = () => {
           },
         }));
         setStations(fuelStations);
-      }
+      }else {
+    console.error("Places API error:", status);
+  }
     });
   }, [isLoaded]);
 
