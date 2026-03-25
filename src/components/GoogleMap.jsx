@@ -13,18 +13,18 @@ const center = {
 };
 
 const locations = [
-  { lat: 6.5856, lng: 79.9600 }, // Kalutara
+  { lat: 6.5856, lng: 79.96 }, // Kalutara
   { lat: 6.9271, lng: 79.8612 }, // Colombo
   { lat: 7.2906, lng: 80.6337 }, // Kandy
-  { lat: 6.0535, lng: 80.2210 }, // Galle
+  { lat: 6.0535, lng: 80.221 }, // Galle
   { lat: 9.6615, lng: 80.0255 }, // Jaffna
   { lat: 8.3596, lng: 81.2205 }, // Trincomalee
   { lat: 7.8731, lng: 81.6746 }, // Polonnaruwa
   { lat: 6.9278, lng: 81.1231 }, // Batticaloa
-  { lat: 6.7180, lng: 79.9928 }, // Negombo
-  { lat: 6.7070, lng: 80.0220 }, // Kurunegala
+  { lat: 6.718, lng: 79.9928 }, // Negombo
+  { lat: 6.707, lng: 80.022 }, // Kurunegala
   { lat: 6.8141, lng: 79.9663 }, // Matale
-  { lat: 7.2163, lng: 80.7480 }, // Dambulla
+  { lat: 7.2163, lng: 80.748 }, // Dambulla
   { lat: 7.9519, lng: 79.8478 }, // Anuradhapura
 ];
 
@@ -58,7 +58,10 @@ const GoogleMapCom = () => {
         service.nearbySearch(request, (results, status) => {
           completedRequests++;
 
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+          if (
+            status === window.google.maps.places.PlacesServiceStatus.OK &&
+            results
+          ) {
             results.forEach((place) => {
               // Only add if not already in the map (deduplication)
               if (!stationMap.has(place.place_id)) {
@@ -72,7 +75,9 @@ const GoogleMapCom = () => {
                 });
               }
             });
-          } else if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
+          } else if (
+            status !== window.google.maps.places.PlacesServiceStatus.OK
+          ) {
             console.error("Places API error:", status);
           }
 
@@ -90,7 +95,18 @@ const GoogleMapCom = () => {
   if (!isLoaded) return <div>Loading Map...</div>;
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={12}
+      options={{
+        streetViewControl: false, // remove Street View button
+        mapTypeControl: false, // remove map type button
+        fullscreenControl: false, // remove fullscreen button
+        zoomControl: false,
+        clickableIcons: false, // disable POI icons clicks
+      }}
+    >
       {stations.map((station) => (
         <Marker
           key={station.id}
