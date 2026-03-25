@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import StationInfoWindow from "./StationInfoWindow";
 
 const containerStyle = {
   width: "100%",
@@ -18,6 +19,7 @@ const GoogleMapCom = () => {
   });
 
   const [stations, setStations] = useState([]);
+  const [selectedStation, setSelectedStation] = useState(null);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -27,7 +29,7 @@ const GoogleMapCom = () => {
 
     const request = {
       location: center,
-      radius: 50000, // 50 km radius
+      radius: 500000, // 50 km radius
       type: "gas_station",
     };
 
@@ -56,13 +58,17 @@ const GoogleMapCom = () => {
         <Marker
           key={station.id}
           position={station.location}
-          title={station.name}
-           icon={{
+          icon={{
             url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
           }}
+          onClick={() => setSelectedStation(station)}
         />
-
       ))}
+      
+      <StationInfoWindow 
+        selectedStation={selectedStation} 
+        onClose={() => setSelectedStation(null)}
+      />
     </GoogleMap>
   );
 };
